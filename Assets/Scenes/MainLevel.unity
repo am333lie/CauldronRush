@@ -428,7 +428,6 @@ GameObject:
   - component: {fileID: 210835377}
   - component: {fileID: 210835376}
   - component: {fileID: 210835375}
-  - component: {fileID: 210835374}
   - component: {fileID: 210835379}
   m_Layer: 5
   m_Name: Canvas
@@ -437,29 +436,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &210835374
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 210835373}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 73d671c435840e94288b165445bb7069, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::RecipeUI
-  recipePanel: {fileID: 1827199095}
-  recipeText: {fileID: 684056208}
-  timerText: {fileID: 1480088941}
-  hintObject: {fileID: 0}
-  shownPosition: {x: -720, y: 330}
-  hiddenPosition: {x: -1300, y: 330}
-  revealScale: 1.8
-  shownScale: 1
-  showDuration: 3
-  slideDuration: 1
-  toggleKey: 108
 --- !u!114 &210835375
 MonoBehaviour:
   m_ObjectHideFlags: 0
