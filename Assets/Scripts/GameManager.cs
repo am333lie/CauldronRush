@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public enum GameState { ShowingRecipe, Playing, Won, Lost }
 
@@ -46,7 +47,7 @@ public class GameManager : MonoBehaviour
     {
         var all = (IngredientType[])System.Enum.GetValues(typeof(IngredientType));
 
-        // Shuffle (Fisher-Yates)
+        // Shuffle 
         for (int i = all.Length - 1; i > 0; i--)
         {
             int j = Random.Range(0, i + 1);
@@ -99,8 +100,11 @@ public class GameManager : MonoBehaviour
     }
 
     private void SetState(GameState newState)
-    {
-        State = newState;
-        OnStateChanged?.Invoke(newState);
-    }
+{
+    State = newState;
+    OnStateChanged?.Invoke(newState);
+
+    if (newState == GameState.Lost)
+        SceneManager.LoadScene("GameOver");
+}
 }
