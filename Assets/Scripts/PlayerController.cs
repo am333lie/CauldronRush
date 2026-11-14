@@ -13,6 +13,7 @@ public class PlayerController : MonoBehaviour
     [Header("Jump")]
     public float jumpHeight = 2f;
     public float gravity = -9.81f;
+    public int maxJumps = 2;
 
     [Header("Ground Detection")]
     public float groundCheckDistance = 0.2f;
@@ -27,9 +28,13 @@ public class PlayerController : MonoBehaviour
     private bool isGrounded;
     private Vector3 groundNormal = Vector3.up;
 
+    private int jumpsRemaining;
+
     void Start()
     {
         controller = GetComponent<CharacterController>();
+
+        jumpsRemaining = maxJumps;
 
         // Align visible model with the bottom
         // of the Character Controller
@@ -63,7 +68,14 @@ public class PlayerController : MonoBehaviour
         // 1. Ground Detection
         CheckGround();
 
-        // 2. WASD Input
+        // 2. Reset jumps when landing
+        if (isGrounded && verticalVelocity <= 0f)
+        {
+            verticalVelocity = -2f;
+            jumpsRemaining = maxJumps;
+        }
+
+        // 3. WASD Input
         Vector2 input = Vector2.zero;
 
         if (Keyboard.current.wKey.isPressed) input.y += 1;
@@ -73,7 +85,7 @@ public class PlayerController : MonoBehaviour
 
         input = Vector2.ClampMagnitude(input, 1f);
 
-        // 3. Camera-relative movement
+        // 4. Camera-relative movement
         Vector3 forward = cameraTransform.forward;
         Vector3 right = cameraTransform.right;
 
@@ -85,7 +97,7 @@ public class PlayerController : MonoBehaviour
 
         Vector3 move = (forward * input.y + right * input.x).normalized;
 
-        // 4. Adapt movement to terrain slope
+        // 5. Adapt movement to terrain slope
         if (isGrounded)
         {
             move = Vector3.ProjectOnPlane(
@@ -93,7 +105,7 @@ public class PlayerController : MonoBehaviour
             ).normalized;
         }
 
-        // 5. Smooth character rotation
+        // 6. Smooth character rotation
         if (move.magnitude > 0.1f)
         {
             Quaternion targetRotation = Quaternion.LookRotation(move);
@@ -105,24 +117,21 @@ public class PlayerController : MonoBehaviour
             );
         }
 
-        // 6. Jump
-        if (isGrounded)
+        // 7. Double Jump
+        if (Keyboard.current.spaceKey.wasPressedThisFrame
+            && jumpsRemaining > 0)
         {
-            if (verticalVelocity < 0)
-                verticalVelocity = -2f;
+            verticalVelocity = Mathf.Sqrt(
+                jumpHeight * -2f * gravity
+            );
 
-            if (Keyboard.current.spaceKey.wasPressedThisFrame)
-            {
-                verticalVelocity = Mathf.Sqrt(
-                    jumpHeight * -2f * gravity
-                );
-            }
+            jumpsRemaining--;
         }
 
-        // 7. Gravity
+        // 8. Gravity
         verticalVelocity += gravity * Time.deltaTime;
 
-        // 8. Apply movement
+        // 9. Apply movement
         Vector3 velocity = move * moveSpeed;
         velocity.y = verticalVelocity;
 
