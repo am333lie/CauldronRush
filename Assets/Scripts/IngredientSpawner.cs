@@ -1,9 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// Put this on an empty GameObject. Every CHILD of that object is a spawn point.
-// At the start of the game the recipe ingredients are placed on random spawn
-// points first (so the recipe is always solvable), then some random extras.
+
 public class IngredientSpawner : MonoBehaviour
 {
     [System.Serializable]
@@ -26,7 +24,7 @@ public class IngredientSpawner : MonoBehaviour
 
     private void Start()
     {
-        // GameManager creates the recipe in Awake, so it is ready here
+    
         Spawn();
     }
 
@@ -69,8 +67,6 @@ public class IngredientSpawner : MonoBehaviour
 
         if (snapToGround)
         {
-            // Short ray from just above the point, so it hits the floor
-            // of a building and not its roof
             Vector3 origin = position + Vector3.up * 0.5f;
             if (Physics.Raycast(origin, Vector3.down, out RaycastHit hit, 20f,
                     groundMask, QueryTriggerInteraction.Ignore))
@@ -81,8 +77,6 @@ public class IngredientSpawner : MonoBehaviour
 
         Quaternion randomTurn = Quaternion.Euler(0f, Random.Range(0f, 360f), 0f);
 
-        // Keep the prefab's own rotation (imported models are often tilted
-        // by 90 degrees) and only add a random turn around the up axis
         GameObject prefab = FindPrefab(type);
         GameObject instance = prefab != null
             ? Instantiate(prefab, position, randomTurn * prefab.transform.rotation)

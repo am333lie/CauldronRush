@@ -9,8 +9,7 @@ public class IngredientPickup : MonoBehaviour
     [Tooltip("Size of the automatic pickup trigger, in metres.")]
     [SerializeField] private float pickupRadius = 0.75f;
 
-    // Middle of the visible model, in local space. Imported models often
-    // have their pivot far away from the mesh, so we never use the pivot.
+   
     private Vector3 localCenter;
 
     public IngredientType Type => type;
@@ -63,10 +62,7 @@ public class IngredientPickup : MonoBehaviour
         if (!other.CompareTag("Player")) return;
         if (GameManager.Instance != null && GameManager.Instance.State != GameState.Playing) return;
 
-        var inventory = other.GetComponentInParent<PlayerInventory>();
-        if (inventory != null) inventory.Add(type);
-        else Debug.LogWarning("Picked up " + type + " but the Player has no PlayerInventory component.");
-
+        GameManager.Instance.AddToInventory(type);
         Destroy(gameObject);
     }
 }

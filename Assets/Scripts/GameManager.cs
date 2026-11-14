@@ -18,6 +18,8 @@ public class GameManager : MonoBehaviour
     public float TimeRemaining { get; private set; }
     public Dictionary<IngredientType, int> Required { get; } = new Dictionary<IngredientType, int>();
     public Dictionary<IngredientType, int> Collected { get; } = new Dictionary<IngredientType, int>();
+    public List<IngredientType> Inventory { get; } = new List<IngredientType>();
+    public event System.Action OnInventoryChanged;
 
     public event System.Action OnRecipeChanged;
     public event System.Action<GameState> OnStateChanged;
@@ -68,24 +70,42 @@ public class GameManager : MonoBehaviour
         SetState(GameState.Playing);
     }
 
-    // Returns true if the ingredient was needed
-    public bool CollectIngredient(IngredientType type)
-    {
-        if (State != GameState.Playing) return false;
+    
+    // Called by an ingredient pickup. Everything goes into the bag, even wrong ones.
+public void AddToInventory(IngredientType type)
+{
+    if (State != GameState.Playing) return;
 
-        bool needed = Required.ContainsKey(type) && Collected[type] < Required[type];
-        if (needed)
-        {
-            Collected[type]++;
-            OnRecipeChanged?.Invoke();
-            if (IsRecipeComplete()) SetState(GameState.Won);
-        }
-        else
-        {
-            TimeRemaining = Mathf.Max(0f, TimeRemaining - wrongIngredientPenalty);
-        }
-        return needed;
+    Inventory.Add(type);
+
+    // The recipe list shows what you already carry
+    if (Required.ContainsKey(type) && Collected[type] < Required[type])
+    {
+        Collected[type]++;
+        OnRecipeChanged?.Invoke();
     }
+    OnInventoryChanged?.Invoke();
+}
+
+// Called by the brew button. Wins if exactly the recipe ingredients are offered.
+public bool TryBrew(List<IngredientType> offered)
+{
+    if (State != GameState.Playing) return false;
+
+    bool correct = offered.Count == Required.Count;
+    if (correct)
+    {
+        foreach (var pair in Required)
+        {
+            if (!offered.Contains(pair.Key)) { correct = false; break; }
+        }
+    }
+
+    if (correct) SetState(GameState.Won);
+    else TimeRemaining = Mathf.Max(0f, TimeRemaining - wrongIngredientPenalty);
+
+    return correct;
+}
 
     public void CaughtByEnemy()
     {
