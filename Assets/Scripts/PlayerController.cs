@@ -105,17 +105,19 @@ public class PlayerController : MonoBehaviour
             ).normalized;
         }
 
-        // 6. Smooth character rotation
-        if (move.magnitude > 0.1f)
-        {
-            Quaternion targetRotation = Quaternion.LookRotation(move);
+       
+// 6. Smooth character rotation
+if (input.sqrMagnitude > 0.01f)
+{
+    Quaternion targetRotation = Quaternion.LookRotation(move);
 
-            transform.rotation = Quaternion.Slerp(
-                transform.rotation,
-                targetRotation,
-                rotationSpeed * Time.deltaTime
-            );
-        }
+    transform.rotation = Quaternion.Slerp(
+        transform.rotation,
+        targetRotation,
+        rotationSpeed * Time.deltaTime
+    );
+}
+
 
         // 7. Double Jump
         if (Keyboard.current.spaceKey.wasPressedThisFrame

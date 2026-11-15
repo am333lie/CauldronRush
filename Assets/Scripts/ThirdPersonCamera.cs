@@ -31,6 +31,8 @@ public class ThirdPersonCamera : MonoBehaviour
     private float currentYaw;
     private float yawVelocity;
 
+    private bool wasMoving;
+
     void Start()
     {
         if (target != null)
@@ -47,7 +49,16 @@ public class ThirdPersonCamera : MonoBehaviour
 
         bool rotatingCamera = Mouse.current.rightButton.isPressed;
 
-        // Rotate camera only while holding right mouse button
+        // Check if the witch is moving
+        Vector3 movement = new Vector3(
+            Input.GetAxisRaw("Horizontal"),
+            0f,
+            Input.GetAxisRaw("Vertical")
+        );
+
+        bool isMoving = movement.sqrMagnitude > 0.01f;
+
+        // Rotate camera while holding right mouse button
         if (rotatingCamera)
         {
             Vector2 mouseDelta = Mouse.current.delta.ReadValue();
@@ -57,9 +68,9 @@ public class ThirdPersonCamera : MonoBehaviour
 
             pitch = Mathf.Clamp(pitch, minPitch, maxPitch);
         }
-        else
+        // Only return behind the witch while she is moving
+        else if (isMoving)
         {
-            // Automatically return behind the witch
             yaw = target.eulerAngles.y;
 
             pitch = Mathf.Lerp(
@@ -77,7 +88,7 @@ public class ThirdPersonCamera : MonoBehaviour
             rotatingCamera ? 0.05f : 0.2f
         );
 
-        // Stronger mouse wheel zoom
+        // Zoom
         float scroll = Mouse.current.scroll.ReadValue().y;
 
         distance -= scroll * zoomSpeed;
