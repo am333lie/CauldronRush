@@ -24,6 +24,17 @@ public class GameManager : MonoBehaviour
     public event System.Action OnRecipeChanged;
     public event System.Action<GameState> OnStateChanged;
 
+    public bool HasKey { get; private set; }
+
+    public float SpeedMultiplier { get; private set; } = 1f;
+    private float boostTimeLeft;
+
+    public void ApplySpeedBoost(float multiplier, float duration)
+    {
+        SpeedMultiplier = multiplier;
+        boostTimeLeft = duration;
+    }
+
     private void Awake()
     {
         Instance = this;
@@ -34,6 +45,11 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
+        if (boostTimeLeft > 0f)
+{
+        boostTimeLeft -= Time.deltaTime;
+        if (boostTimeLeft <= 0f) SpeedMultiplier = 1f;
+}
         if (State != GameState.Playing) return;
 
         TimeRemaining -= Time.deltaTime;
@@ -126,5 +142,10 @@ public bool TryBrew(List<IngredientType> offered)
 
     if (newState == GameState.Lost)
         SceneManager.LoadScene("GameOver");
+}
+
+public void CollectKey()
+{
+    HasKey = true;
 }
 }

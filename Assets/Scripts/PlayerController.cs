@@ -134,7 +134,7 @@ if (input.sqrMagnitude > 0.01f)
         verticalVelocity += gravity * Time.deltaTime;
 
         // 9. Apply movement
-        Vector3 velocity = move * moveSpeed;
+        Vector3 velocity = move * moveSpeed * GameManager.Instance.SpeedMultiplier;
         velocity.y = verticalVelocity;
 
         controller.Move(velocity * Time.deltaTime);
