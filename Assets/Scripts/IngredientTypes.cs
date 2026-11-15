@@ -3,7 +3,7 @@ public enum IngredientType
     Eyeball,
     Mushroom,
     Feather,
-    Herb,
+    Plant,
     Bone,
     Crystal,
     Spideregg
