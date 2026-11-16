@@ -16,6 +16,8 @@ public class GameManager : MonoBehaviour
 
     public GameState State { get; private set; } = GameState.ShowingRecipe;
     public float TimeRemaining { get; private set; }
+    public static float LastElapsedTime { get; private set; }
+    private float elapsed;
     public Dictionary<IngredientType, int> Required { get; } = new Dictionary<IngredientType, int>();
     public Dictionary<IngredientType, int> Collected { get; } = new Dictionary<IngredientType, int>();
     public List<IngredientType> Inventory { get; } = new List<IngredientType>();
@@ -51,6 +53,7 @@ public class GameManager : MonoBehaviour
         if (boostTimeLeft <= 0f) SpeedMultiplier = 1f;
 }
         if (State != GameState.Playing) return;
+        elapsed += Time.deltaTime;
 
         TimeRemaining -= Time.deltaTime;
         if (TimeRemaining <= 0f)
@@ -142,6 +145,12 @@ public bool TryBrew(List<IngredientType> offered)
 
     if (newState == GameState.Lost)
         SceneManager.LoadScene("GameOver");
+
+    if (newState == GameState.Won)
+    {
+        LastElapsedTime = elapsed;
+        SceneManager.LoadScene("WinScene");
+    }
 }
 
 public void CollectKey()
