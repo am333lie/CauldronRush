@@ -64,32 +64,50 @@ public class IngredientSpawner : MonoBehaviour
     private void SpawnAt(Transform point, IngredientType type)
     {
         Vector3 position = point.position;
+    bool onGround = false;
 
-        if (snapToGround)
+    if (snapToGround)
+    {
+        // Short ray from just above the point, so it hits the floor
+        // of a building and not its roof
+        Vector3 origin = position + Vector3.up * 0.5f;
+        if (Physics.Raycast(origin, Vector3.down, out RaycastHit hit, 20f,
+                groundMask, QueryTriggerInteraction.Ignore))
         {
-            Vector3 origin = position + Vector3.up * 0.5f;
-            if (Physics.Raycast(origin, Vector3.down, out RaycastHit hit, 20f,
-                    groundMask, QueryTriggerInteraction.Ignore))
-            {
-                position = hit.point + Vector3.up * heightAboveGround;
-            }
+            position = hit.point;
+            onGround = true;
         }
+    }
 
-        Quaternion randomTurn = Quaternion.Euler(0f, Random.Range(0f, 360f), 0f);
+    Quaternion randomTurn = Quaternion.Euler(0f, Random.Range(0f, 360f), 0f);
 
-        GameObject prefab = FindPrefab(type);
-        GameObject instance = prefab != null
-            ? Instantiate(prefab, position, randomTurn * prefab.transform.rotation)
-            : CreatePlaceholder(type, position);
+    GameObject prefab = FindPrefab(type);
+    GameObject instance = prefab != null
+        ? Instantiate(prefab, position, randomTurn * prefab.transform.rotation)
+        : CreatePlaceholder(type, position);
 
-        instance.name = "Ingredient_" + type;
+    instance.name = "Ingredient_" + type;
 
-        var pickup = instance.GetComponent<IngredientPickup>();
-        if (pickup == null) pickup = instance.AddComponent<IngredientPickup>();
-        pickup.SetType(type);
+    // Measure the visible model and move it into place
+    Renderer[] renderers = instance.GetComponentsInChildren<Renderer>();
+    if (renderers.Length > 0)
+    {
+        Bounds bounds = renderers[0].bounds;
+        foreach (Renderer r in renderers) bounds.Encapsulate(r.bounds);
 
-        // Move the object so the visible model (not its pivot) sits on the spawn point
-        instance.transform.position += position - pickup.WorldCenter;
+        // Centre the model on the spawn point
+        Vector3 shift = position - bounds.center;
+
+        // Rest its bottom edge just above the ground
+        if (onGround)
+            shift.y = position.y + heightAboveGround - bounds.min.y;
+
+        instance.transform.position += shift;
+    }
+
+    var pickup = instance.GetComponent<IngredientPickup>();
+    if (pickup == null) pickup = instance.AddComponent<IngredientPickup>();
+    pickup.SetType(type);
     }
 
     private GameObject FindPrefab(IngredientType type)
